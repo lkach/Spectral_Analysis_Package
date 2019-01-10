@@ -168,7 +168,7 @@ end
 
 %% Segment (reduce noise), window (account for edge effects), and calculated "Spectrum"
 
-% Build Hanning window matrix (The total number of windows including
+% Build window matrix (The total number of windows including
 % overlapping ones is 2*WINDOWS-1)
 if ischar(WINDOWMETHOD)
     eval(['Window = repmat(',WINDOWMETHOD,'(N), 1, 2*SEGMENTS - 1);'])
