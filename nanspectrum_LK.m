@@ -74,7 +74,7 @@ error_Msg = ['You need to make sure that your time series can',...
         ' data points. This can be factored into [',...
         num2str(factor(leng_TS)),'].'];
     
-% Give yourself an error if you can't split TS into WINDOWS windows:
+% Give yourself an error if you can't split TS into SEGMENTS segments:
 if ~mod(leng_TS,SEGMENTS)
 % Using one segment is not advised, because it will just result in the
 % absolute value of the fft, which will have a lot of noise, but if you
@@ -169,7 +169,7 @@ end
 %% Segment (reduce noise), window (account for edge effects), and calculated "Spectrum"
 
 % Build window matrix (The total number of windows including
-% overlapping ones is 2*WINDOWS-1)
+% overlapping ones is 2*SEGMENTS-1)
 if ischar(WINDOWMETHOD)
     eval(['Window = repmat(',WINDOWMETHOD,'(N), 1, 2*SEGMENTS - 1);'])
 else % There is no need to ask if it's a vector of the right length; this
