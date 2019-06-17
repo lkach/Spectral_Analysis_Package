@@ -1,5 +1,5 @@
 % [S_cw, S_ccw, f_vec, err] =
-% nanrotaryspectrum_LK(u, v, DT, TIME_UNITS, SEGMENTS, PLOT_OPTION, PLOT_BOOLEAN, INTERPMETHOD, varargin)
+% nanrotaryspectrum(u, v, DT, TIME_UNITS, SEGMENTS, PLOT_OPTION, PLOT_BOOLEAN, INTERPMETHOD, varargin)
 % 
 % Rotary spectrum estimator, able to handle time series with NaN's, Inf's,
 % etc. Based on material taught in Sarah Gille's SIOC 221a, notes
@@ -62,7 +62,7 @@
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 % 
 
-function [S_cw, S_ccw, f_vec, err] = nanrotaryspectrum_LK(u,v,DT,TIME_UNITS,...
+function [S_cw, S_ccw, f_vec, err] = nanrotaryspectrum(u,v,DT,TIME_UNITS,...
     SEGMENTS,PLOT_OPTION,PLOT_BOOLEAN,INTERPMETHOD,varargin)
 
 %% For troubleshooting (part 1):
@@ -101,7 +101,7 @@ if isnumeric(PLOT_OPTION) && PLOT_OPTION == 0
     PLOT_OPTION = {'.-','.-'};
 elseif iscell(PLOT_OPTION) && length(PLOT_OPTION) == 2
 else
-    eval('help nanrotaryspectrum_LK')
+    eval('help nanrotaryspectrum')
     error('The sixth argument "PLOT_OPTION" is incorrectly formatted. See documentation above.')
 end
 
@@ -136,7 +136,7 @@ elseif nargin == 9
         error('The optional eighth argument "WINDOWMETHOD" needs to be a string for a window function or vector of length length(TS)/SEGMENTS.')
     end
 else
-    error('"nanrotaryspectrum_LK" only takes 8 or 9 arguments.')
+    error('"nanrotaryspectrum" only takes 8 or 9 arguments.')
 end
 
 %% Make a column into a row
@@ -209,7 +209,7 @@ elseif INTERPMETHOD == 1
         v(nancoords_v(i)) = sqrt(v_var)*randn + mv(1) + mv(2)*T(nancoords_v(i));
     end
 else
-    eval('help nanrotaryspectrum_LK')
+    eval('help nanrotaryspectrum')
     error(['The variable "INTERPMETHOD" must be 0, 1, or one of several',...
         ' specific strings. See the documentation above.'])
 end
