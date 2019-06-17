@@ -1,4 +1,4 @@
-% [Spectrum, f_vec, err] = nanspectrum_LK(TS, DT, TIME_UNITS, SEGMENTS, PLOT_OPTION, PLOT_BOOLEAN, INTERPMETHOD, WINDOWMETHOD)
+% [Spectrum, f_vec, err] = nanspectrum(TS, DT, TIME_UNITS, SEGMENTS, PLOT_OPTION, PLOT_BOOLEAN, INTERPMETHOD, WINDOWMETHOD)
 % 
 % Spectrum estimator, able to handle time series with NaN's, Inf's, etc.
 % Based on material taught in Sarah Gille's SIOC 221a, notes accessible at
@@ -59,7 +59,7 @@
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 % 
 
-function [Spectrum, f_vec, err] = nanspectrum_LK(TS,DT,TIME_UNITS,...
+function [Spectrum, f_vec, err] = nanspectrum(TS,DT,TIME_UNITS,...
     SEGMENTS,PLOT_OPTION,PLOT_BOOLEAN,INTERPMETHOD,varargin)
 
 %% For troubleshooting (part 1):
@@ -118,7 +118,7 @@ elseif nargin == 8
         error('The optional eighth argument "WINDOWMETHOD" needs to be a string for a window function or vector of length length(TS)/SEGMENTS.')
     end
 else
-    error('"nanspectrum_LK" only takes 7 or 8 arguments.')
+    error('"nanspectrum" only takes 7 or 8 arguments.')
 end
 
 %% Make a column into a row
@@ -161,7 +161,7 @@ elseif INTERPMETHOD == 1
         TS(nancoords(i)) = sqrt(TS_var)*randn + m(1) + m(2)*T(nancoords(i));
     end
 else
-    eval('help nanspectrum_LK')
+    eval('help nanspectrum')
     error(['The variable "INTERPMETHOD" must be 0, 1, or one of several',...
         ' specific strings. See the documentation above.'])
 end
