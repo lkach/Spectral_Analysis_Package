@@ -408,7 +408,5 @@ end
 %% Inertial currents (CW in NH, CCW in SH)
 
 % see:
-% /Users/lukekachelein/Documents/SIO/2016Fall/210 - PO/DPO_Book
-% Chapter-7-Dynamical-Processes-for-Descriptive-Ocean-Circulation_2011_Descriptive-Physical-Oceanography-Sixth-Edition-.pdf
-
-
+% Chapter 7: Dynamical Processes for Descriptive Ocean Circulation - 2011 Descriptive Physical Oceanography Sixth Edition
+% Lynne Talley
