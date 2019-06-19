@@ -62,6 +62,11 @@
 function [Spectrum, f_vec, err] = nanspectrum(TS,DT,TIME_UNITS,...
     SEGMENTS,PLOT_OPTION,PLOT_BOOLEAN,INTERPMETHOD,varargin)
 
+if nargin == 0
+    disp('[Spectrum, f_vec, err] = nanspectrum(TS, DT, TIME_UNITS, SEGMENTS, PLOT_OPTION, PLOT_BOOLEAN, INTERPMETHOD, WINDOWMETHOD)')
+else
+end
+
 %% For troubleshooting (part 1):
 % raw_TS = TS;
 
