@@ -68,7 +68,7 @@ function OUT = funct3(tt,xx)
 end
 %% Fast instructions printed to terminal if zero inputs are given
 if nargin == 0
-    disp('nanspectrum2d(DATA, DT, DX, TSEGMENTS, XSEGMENTS, TIME_UNITS, SPACE_UNITS, PLOT_BOOLEAN, INTERPMETHOD)')
+    disp('[Spectrum2D, f_vec, k_vec, DATA_treated] = nanspectrum2d(DATA, DT, DX, TSEGMENTS, XSEGMENTS, TIME_UNITS, SPACE_UNITS, PLOT_BOOLEAN, INTERPMETHOD)')
 else
 end
 %% Interpolate
