@@ -66,6 +66,11 @@ function OUT = funct3(tt,xx)
 	OUT(:,2) = tt;
 	OUT(:,3) = xx;
 end
+%% Fast instructions printed to terminal if zero inputs are given
+if nargin == 0
+    disp('nanspectrum2d(DATA, DT, DX, TSEGMENTS, XSEGMENTS, TIME_UNITS, SPACE_UNITS, PLOT_BOOLEAN, INTERPMETHOD)')
+else
+end
 %% Interpolate
 
 N_t = size(DATA,2); % number of points in time
