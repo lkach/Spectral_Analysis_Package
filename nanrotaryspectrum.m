@@ -1,5 +1,5 @@
 % [S_cw, S_ccw, f_vec, err] =
-% nanrotaryspectrum(u, v, DT, TIME_UNITS, SEGMENTS, PLOT_OPTION, PLOT_BOOLEAN, INTERPMETHOD, varargin)
+% nanrotaryspectrum(u, v, DT, TIME_UNITS, SEGMENTS, PLOT_OPTION, PLOT_BOOLEAN, INTERPMETHOD, WINDOWMETHOD)
 % 
 % Rotary spectrum estimator, able to handle time series with NaN's, Inf's,
 % etc. Based on material taught in Sarah Gille's SIOC 221a, notes
@@ -64,6 +64,11 @@
 
 function [S_cw, S_ccw, f_vec, err] = nanrotaryspectrum(u,v,DT,TIME_UNITS,...
     SEGMENTS,PLOT_OPTION,PLOT_BOOLEAN,INTERPMETHOD,varargin)
+
+if nargin == 0
+    disp('[S_cw, S_ccw, f_vec, err] = nanrotaryspectrum(u, v, DT, TIME_UNITS, SEGMENTS, PLOT_OPTION, PLOT_BOOLEAN, INTERPMETHOD, WINDOWMETHOD)')
+else
+end
 
 %% For troubleshooting (part 1):
 % raw_TS = TS;
