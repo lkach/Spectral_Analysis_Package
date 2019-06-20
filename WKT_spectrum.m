@@ -8,10 +8,12 @@
 %           data must be evenly spaced.
 % IN:   maxlags = Scalar, the maximum lag (multiple of the time step)
 %           considered by the internally calculated autocovariance.
-% IN:   WindowMethod = (Optional) String, the function used to build the
-%           window by which the autocovariance is multiplied. The default
-%           is "hann". For no adjustment to the autocovariance, use
+% IN:   WindowMethod = (Optional) If it's a string, the function used to
+%           build the window by which the autocovariance is multiplied. The
+%           default is "hann". For no adjustment to the autocovariance, use
 %           "rectwin".
+%           If it's a vector, it will be used as window itself, e.g.
+%           fftshift(hann(2*maxlag,'periodic'));
 %
 % OUT:  Spec = The output power spectrum, which has units of X^2 / freq.
 %           Multiply by f_spec(1) to get variance.
@@ -44,12 +46,25 @@ for i=1:(1 + maxlag) % lag = (i-1)*dt
 end
 % NOTE: "autocov_std_x" and "n_autocov_x" are unused, and are
 % retained here for troubleshooting and possible future inclusion.
-autocov_x = [autocov_x;flip(autocov_x(2:(end-1)))]; % autocov_x = [autocov_x;0;flip(autocov_x(2:end))];
+autocov_x = [autocov_x;flip(autocov_x(2:(end-1)))];
 
 if nargin == 2
     Window = fftshift(hann(length(autocov_x),'periodic'));
 elseif nargin == 3
-    Window = eval(['fftshift(',varargin{1},'(length(autocov_x),''periodic''));']);
+    if isstr(varargin{1})
+        if strcmp(varargin{1},'blackman') || ...
+                strcmp(varargin{1},'flattopwin') || ...
+                strcmp(varargin{1},'hamming') || ...
+                strcmp(varargin{1},'hann') || ...
+                strcmp(varargin{1},'hanning') || ...
+                strcmp(varargin{1},'blackmanharris')
+            Window = eval(['fftshift(',varargin{1},'(length(autocov_x),''periodic''));']);
+        else
+            Window = eval(['fftshift(',varargin{1},'(length(autocov_x)));']);
+        end
+    else
+        Window = varargin{1};
+    end
 else
     error('Incorrect number of inputs; please read documentation.')
 end
