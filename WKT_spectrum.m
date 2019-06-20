@@ -104,8 +104,8 @@ end
 % T = 0:999;
 % X = 3*sin(2*pi*T/50) + randn(size(T)) + 10;
 % 
-% [WelchS, WelchF, ~] = nanspectrum_LK(X, 1, 'unit', 5, '.-', 0, 0, 'hanning');
-% [wktS, wktF] = WKT_spectrum(X,length(T)/10);
+% [WelchS, WelchF, ~] = nanspectrum_LK(X, 1, 'unit', 5, '.-', 0, 0, 'hann');
+% [wktS, wktF] = WKT_spectrum(X,length(T)/10,'hann');
 % 
 % figure
 % plot(wktF,wktS,'.-'); hold on
