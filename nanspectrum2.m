@@ -5,7 +5,7 @@
 % 
 % -------------------------------------------------------------------------
 % REQUIRED INPUTS:
-%   DATA = Data matrix, size nd by md
+%   DATA = Data matrix, size nd by md. May be complex for corrent = u + i*v
 %   DD   = 2-element vector where:
 %          DD(1) = step length in the horizontal dimension of DATA
 %          DD(2) = step length in the vertical dimension of DATA
