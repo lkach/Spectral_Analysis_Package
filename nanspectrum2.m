@@ -154,15 +154,18 @@ end
 HH = [XX(:), YY(:), ones(size(XX(:)))];
 
 for seg_i = 1:size(DATA_reshape,3)
-    % Fill gaps
+    % Fill gaps if there are any:
     DATA_slice = DATA_reshape(:,:,seg_i);
     IsFiniteData = isfinite(DATA_slice); IsFiniteData = IsFiniteData(:);
-    DATA_col = DATA_slice; DATA_col = DATA_col(:);
-    Coef_R = HH(IsFiniteData,:)\real(DATA_col(IsFiniteData));
-    Coef_I = HH(IsFiniteData,:)\imag(DATA_col(IsFiniteData));
-    DATA_plane = reshape(HH*Coef_R, N1/SEG1, N2/SEG2) + 1i*reshape(HH*Coef_I, N1/SEG1, N2/SEG2);
-    DATA_slice(~isfinite(DATA_slice)) = DATA_plane(~isfinite(DATA_slice));
-    DATA_reshape(:,:,seg_i) = DATA_slice;
+    if sum(~IsFiniteData) || Detrend
+        DATA_col = DATA_slice; DATA_col = DATA_col(:);
+        Coef_R = HH(IsFiniteData,:)\real(DATA_col(IsFiniteData));
+        Coef_I = HH(IsFiniteData,:)\imag(DATA_col(IsFiniteData));
+        DATA_plane = reshape(HH*Coef_R, N1/SEG1, N2/SEG2) + 1i*reshape(HH*Coef_I, N1/SEG1, N2/SEG2);
+        DATA_slice(~isfinite(DATA_slice)) = DATA_plane(~isfinite(DATA_slice));
+        DATA_reshape(:,:,seg_i) = DATA_slice;
+    else
+    end
     % De-plane
     if Detrend
         DATA_reshape(:,:,seg_i) = DATA_reshape(:,:,seg_i) - DATA_plane;
@@ -205,7 +208,7 @@ F1 = flip(F1);
 
 F12 = cat(3,F2,F1);
 
-figure;subplot(121);imagesc(F12(:,:,1));subplot(122);imagesc(F12(:,:,2))%$
+% figure;subplot(121);imagesc(F12(:,:,1));subplot(122);imagesc(F12(:,:,2))
 
 %% Normalize:
 
