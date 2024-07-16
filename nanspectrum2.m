@@ -263,7 +263,7 @@ if nargout < 3
 elseif nargout == 3
     warning(['Error estimate is an educated guess based on 1D spectral principles,',...
              ' inspect code and determine if this is correct and/or sufficient for your needs.'])
-    err = varargout{1};
+    varargout{1} = err;
 end
 
 %% Auxiliary function
