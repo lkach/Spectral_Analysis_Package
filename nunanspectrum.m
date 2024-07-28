@@ -1,5 +1,26 @@
-
-
+% [SPEC, Freq, Err] = nunanspectrum(TS, T, TIME_UNITS, (options))
+% 
+% Non-Uniform power SPECTRUM estimator with NAN inputs for missing
+% data. Uses nufft instead of fft to calculate power spectra.
+% Accomodates scalar and vector (complex) inputs and gives the
+% relevant regular or rotary power spectrum.
+% 
+% INPUTS:
+% TS         = Time series data (or spatial data for wavenumber
+%              spectra). Nx1 or 1xN. Real for scalar input, Complex
+%              for vector/current input (u + i*v).
+% T          = Time grid points corresponding to TS (or spatial
+%              grid for wavenumber spectra). Same size as TS.
+% TIME_UNITS = Time units of T (or spatial units). String.
+% 
+% OUTPUTS:
+% SPEC       = Power spectrum. Mx1 for scalar TS, Mx2 for vector TS.
+%              Units of [TS_units^2 Freq_units^-1].
+% Freq       = Frequencies (or wavenumbers) corresponding to SPEC. Mx1.
+%              Units of [1/T_units].
+% Err        = A two element column vector, where err(1) = "err_low"
+%              and err(2) = "err_high". See section "%% Error". 95%
+%              confidence interval.
 
 function [varargout] = nunanspectrum(TS, T, TIME_UNITS, varargin)
 %% Eliminate missing data (nufft does not need them)
