@@ -6,21 +6,36 @@
 % relevant regular or rotary power spectrum.
 % 
 % INPUTS:
-% TS         = Time series data (or spatial data for wavenumber
-%              spectra). Nx1 or 1xN. Real for scalar input, Complex
-%              for vector/current input (u + i*v).
-% T          = Time grid points corresponding to TS (or spatial
-%              grid for wavenumber spectra). Same size as TS.
-% TIME_UNITS = Time units of T (or spatial units). String.
+% TS            = Time series data (or spatial data for wavenumber
+%                 spectra). Nx1 or 1xN. Real for scalar input, Complex
+%                 for vector/current input (u + i*v).
+% T             = Time grid points corresponding to TS (or spatial
+%                 grid for wavenumber spectra). Same size as TS.
+% TIME_UNITS    = Time units of T (or spatial units). String.
+% 
+% OPTIONAL NAME/VALUE PAIR INPUTS:
+% 'Segments'    = Number of non-overlapping segments (overlapping segments
+%                 are automatically used suh that the total number of
+%                 segments = 'Segments' option *2 - 1). Default 1
+% 'Plot_option' = Line plotting option. Default '.-'
+% 'Plot'        = Boolean to allow automatically generated plot. Default false.
+% 'Window'      = Windowing function. Currently only 'rectwin' and
+%                 'hanning' are options. Default 'rectwin'.
+% 'Freq'        = Desired frequencies (same as output "Freq"). For default,
+%                 see the function text, section "Sort out optional inputs".
+% 'PlotSegments'= Advanced option for troubleshooting and validation,
+%                 boolean, allows the plotting of each segment (with and
+%                 without detrending and windpwing) in a single plot, with
+%                 one panel per segment. Default false.
 % 
 % OUTPUTS:
-% SPEC       = Power spectrum. Mx1 for scalar TS, Mx2 for vector TS.
-%              Units of [TS_units^2 Freq_units^-1].
-% Freq       = Frequencies (or wavenumbers) corresponding to SPEC. Mx1.
-%              Units of [1/T_units].
-% Err        = A two element column vector, where err(1) = "err_low"
-%              and err(2) = "err_high". See section "%% Error". 95%
-%              confidence interval.
+% SPEC          = Power spectrum. Mx1 for scalar TS, Mx2 for vector TS.
+%                 Units of [TS_units^2 Freq_units^-1].
+% Freq          = Frequencies (or wavenumbers) corresponding to SPEC. Mx1.
+%                 Units of [1/T_units].
+% Err           = A two element column vector, where err(1) = "err_low"
+%                 and err(2) = "err_high". See section "%% Error". 95%
+%                 confidence interval.
 
 function [varargout] = nunanspectrum(TS, T, TIME_UNITS, varargin)
 %% Eliminate missing data (nufft does not need them)
@@ -43,7 +58,7 @@ if ~isempty(varargin)
     Struct = struct(varargin{:});
     Names = fieldnames(Struct);
     % Fields should be drawn from:
-    AllowedVars = {'Segments', 'Plot_option', 'Plot', 'Window', 'Freq'};
+    AllowedVars = {'Segments', 'Plot_option', 'Plot', 'Window', 'Freq', 'PlotSegments'};
     % Note: Freq should be defined by df:df:f_Ny, not the 0:df:[2*f_Ny - df] that nufft assumes
     % (those adjustments are made automatically).
     for ii=1:length(Names)
@@ -93,6 +108,9 @@ else
     Freq_ = [0; Freq(1:[end-1])];
     FreqFreq_ = [0; FreqFreq(1:[end-1])];
 end
+if ~exist('PlotSegments','var')
+    PlotSegments = false;
+end
 
 %% Segment
 
@@ -131,6 +149,13 @@ else
         TS_reshape{ii+2} = TS(((seg_i + 1)*seg_len + 1):end);
         T_reshape{ii+2} =   T(((seg_i + 1)*seg_len + 1):end);
     end
+end
+
+% Save time series segments before they are further modified (for plotting
+% only, and only if requested).
+if PlotSegments
+    TS_reshape_unwindowed = TS_reshape;
+else
 end
 
 %% Detrend data segments
@@ -273,6 +298,41 @@ if Plot
         % error bar plotted
         loglog([1.1 1.1]*Freq(end),[1 (err_high/err_low)]*min(SPEC(:)),'k','LineWidth',3);
         legend('CCW Spectrum','CW Spectrum','95% error')
+    end
+else
+end
+
+% This option is for testing and troubleshooting purposes, specifically to
+% see what each segment looks like:
+if PlotSegments
+    figure
+    II = 1;
+    for si = 1:[2*Segments - 1]
+        if REAL
+            if II == 1
+                subplot(2*Segments - 1,1,II)
+                plot(T, TS, '.-','Color',[0.2 0.8 0.3]); hold on
+            else
+            end
+            subplot(2*Segments - 1,1,II)
+            plot(T_reshape{si}, TS_reshape_unwindowed{si}, '.-k'); hold on
+            plot(T_reshape{si}, TS_reshape{si}, '.-', 'Color',[1 1 1]*0.7)
+            set(gca,'XLim',[T_reshape{1}(1) T_reshape{end}(end)])
+        else
+            if II == 1
+                subplot(2*Segments - 1,1,II)
+                plot(T, real(TS), '.-','Color',[0 0 0.5]); hold on
+                plot(T, imag(TS), '.-','Color',[0.5 0 0]);
+            else
+            end
+            subplot(2*Segments - 1,1,II)
+            plot(T_reshape{si}, real(TS_reshape_unwindowed{si}), '.-b'); hold on
+            plot(T_reshape{si}, real(TS_reshape{si}), '.-','Color',[0.7 0.7 1])
+            plot(T_reshape{si}, imag(TS_reshape_unwindowed{si}), '.-r')
+            plot(T_reshape{si}, imag(TS_reshape{si}), '.-','Color',[1 0.7 0.7])
+            set(gca,'XLim',[T_reshape{1}(1) T_reshape{end}(end)])
+        end
+        II = II + 1;
     end
 else
 end
