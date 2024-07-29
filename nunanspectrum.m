@@ -217,7 +217,7 @@ end
 NUFFT_TS = cell(2*Segments - 1,1);
 mean_NUFFT_TS_squared = zeros(size(FreqFreq_));
 for ii = 1:length(TS_reshape)
-    NUFFT_TS{ii} = nufft(TS_reshape{ii}, T_reshape{ii}, FreqFreq_)/[length(T_reshape{ii})];
+    NUFFT_TS{ii} = nufft(TS_reshape{ii}, T_reshape{ii}, FreqFreq_)/sqrt([length(T_reshape{ii})]);
     mean_NUFFT_TS_squared = mean_NUFFT_TS_squared + [abs(NUFFT_TS{ii}).^2]/length(TS_reshape);
 end
 % figure;for ii = 1:length(NUFFT_TS); loglog(FreqFreq_,abs(NUFFT_TS{ii}).^2,'.-');hold on; end % for testing purposes
@@ -232,11 +232,9 @@ if REAL
         N_spec = length(mean_NUFFT_TS_squared);
         SPEC = [ [mean_NUFFT_TS_squared(2:[N_spec/2]) + flip(mean_NUFFT_TS_squared([N_spec/2 + 2]:end)) ]/2 ; 2*mean_NUFFT_TS_squared([N_spec/2 + 1])];
     end
-    SPEC = 2*NormFactor*(N_spec*FreqFreq(end))*SPEC;
-    % The above is the correct normalization step, but because the effect of
-    % gaps in the data are difficult to account for, simply force the spectrum
-    % to fulfill Parseval's Theorem:
-    SPEC = mean_var*SPEC/sum(SPEC*Freq(1));
+    % Fulfill Parseval's theorem approximately (difference from true
+    % variance due to unresolved frequenies and detrending effects):
+    SPEC = 2*NormFactor*SPEC/(FreqFreq(end));
 else
     if mod(length(mean_NUFFT_TS_squared),2) % odd
         N_spec = length(mean_NUFFT_TS_squared);
@@ -247,12 +245,9 @@ else
         SPEC(:,1) = [      mean_NUFFT_TS_squared(2:[N_spec/2]) ;        mean_NUFFT_TS_squared([N_spec/2 + 1])];
         SPEC(:,2) = [ flip(mean_NUFFT_TS_squared([N_spec/2 + 2]:end)) ; mean_NUFFT_TS_squared([N_spec/2 + 1])];
     end
-    SPEC = NormFactor*(N_spec*FreqFreq(end))*SPEC;
-    % The above is the correct normalization step, but because the effect of
-    % gaps in the data are difficult to account for, simply force the spectrum
-    % to fulfill Parseval's Theorem:
-    SPEC(:,1) = mean_var(1)*SPEC(:,1)/sum(SPEC(:,1)*Freq(1));
-    SPEC(:,2) = mean_var(2)*SPEC(:,2)/sum(SPEC(:,2)*Freq(1));
+    % Fulfill Parseval's theorem approximately (difference from true
+    % variance due to unresolved frequenies and detrending effects):
+    SPEC = 1*NormFactor*SPEC/(FreqFreq(end));
 end
 
 %% Error
