@@ -1,9 +1,9 @@
 % [SPEC, Freq, Err] = nunanspectrum(TS, T, TIME_UNITS, (options))
 % 
 % Non-Uniform power SPECTRUM estimator with NAN inputs for missing
-% data. Uses nufft instead of fft to calculate power spectra.
-% Accomodates scalar and vector (complex) inputs and gives the
-% relevant regular or rotary power spectrum.
+% data. Uses nufft by default (or plomb if requested) instead of fft to
+% calculate power spectra. Accommodates scalar and vector (complex) inputs
+% and gives the relevant regular or rotary power spectrum.
 % 
 % INPUTS:
 % TS            = Time series data (or spatial data for wavenumber
@@ -27,6 +27,10 @@
 %                 boolean, allows the plotting of each segment (with and
 %                 without detrending and windpwing) in a single plot, with
 %                 one panel per segment. Default false.
+% 'Method'      = Default 'nufft', this is the function used to get the
+%                 frequency-domain coefficients. The only implemented
+%                 alternative is 'plomb', which is from MATLAB's Signal
+%                 Processing Package.
 % 
 % OUTPUTS:
 % SPEC          = Power spectrum. Mx1 for scalar TS, Mx2 for vector TS.
@@ -58,7 +62,7 @@ if ~isempty(varargin)
     Struct = struct(varargin{:});
     Names = fieldnames(Struct);
     % Fields should be drawn from:
-    AllowedVars = {'Segments', 'Plot_option', 'Plot', 'Window', 'Freq', 'PlotSegments'};
+    AllowedVars = {'Segments', 'Plot_option', 'Plot', 'Window', 'Freq', 'PlotSegments', 'Method'};
     % Note: Freq should be defined by df:df:f_Ny, not the 0:df:[2*f_Ny - df] that nufft assumes
     % (those adjustments are made automatically).
     for ii=1:length(Names)
@@ -110,6 +114,9 @@ else
 end
 if ~exist('PlotSegments','var')
     PlotSegments = false;
+end
+if ~exist('Method','var')
+    Method = 'nufft';
 end
 
 %% Segment
@@ -215,26 +222,41 @@ end
 %% Calculate power spectrum with nufft
 
 NUFFT_TS = cell(2*Segments - 1,1);
-mean_NUFFT_TS_squared = zeros(size(FreqFreq_));
+mean_NUFFT_TS_squared = 0;%zeros(size(FreqFreq_));
 for ii = 1:length(TS_reshape)
-    NUFFT_TS{ii} = nufft(TS_reshape{ii}, T_reshape{ii}, FreqFreq_)/sqrt([length(T_reshape{ii})]);
-    mean_NUFFT_TS_squared = mean_NUFFT_TS_squared + [abs(NUFFT_TS{ii}).^2]/length(TS_reshape);
+    if strcmp(Method,'nufft')
+        NUFFT_TS{ii} = nufft(TS_reshape{ii}, T_reshape{ii}, FreqFreq_)/sqrt([length(T_reshape{ii})]);
+        mean_NUFFT_TS_squared = mean_NUFFT_TS_squared + [abs(NUFFT_TS{ii}).^2]/length(TS_reshape);
+    elseif strcmp(Method,'plomb') && REAL
+        NUFFT_TS{ii} = plomb(TS_reshape{ii}, T_reshape{ii}, Freq,'psd');
+        mean_NUFFT_TS_squared = mean_NUFFT_TS_squared + [NUFFT_TS{ii}]/length(TS_reshape);
+    elseif strcmp(Method,'plomb') && ~REAL
+        error(['The Lomb-Scargle method has only been implemented for real inputs at this time.'])
+    else
+        error(['Valid options for optional input ''Method'' include {''nufft'',''plomb''}. Given ''' Method ''''])
+    end
 end
 % figure;for ii = 1:length(NUFFT_TS); loglog(FreqFreq_,abs(NUFFT_TS{ii}).^2,'.-');hold on; end % for testing purposes
 % semilogy(FreqFreq_,mean_NUFFT_TS_squared,'k.-','MarkerSize',15)% for testing purposes
 % figure; semilogy(mean_NUFFT_TS_squared,'k.-','MarkerSize',15)% for testing purposes
 
 if REAL
-    if mod(length(mean_NUFFT_TS_squared),2) % odd
-        N_spec = length(mean_NUFFT_TS_squared);
-        SPEC =   [mean_NUFFT_TS_squared(2:[[N_spec + 1]/2]) + flip(mean_NUFFT_TS_squared([[N_spec + 1]/2 + 1]:end)) ]/2;
-    else % even
-        N_spec = length(mean_NUFFT_TS_squared);
-        SPEC = [ [mean_NUFFT_TS_squared(2:[N_spec/2]) + flip(mean_NUFFT_TS_squared([N_spec/2 + 2]:end)) ]/2 ; 2*mean_NUFFT_TS_squared([N_spec/2 + 1])];
+    if strcmp(Method,'nufft')
+        if mod(length(mean_NUFFT_TS_squared),2) % odd
+            N_spec = length(mean_NUFFT_TS_squared);
+            SPEC =   [mean_NUFFT_TS_squared(2:[[N_spec + 1]/2]) + flip(mean_NUFFT_TS_squared([[N_spec + 1]/2 + 1]:end)) ]/2;
+        else % even
+            N_spec = length(mean_NUFFT_TS_squared);
+            SPEC = [ [mean_NUFFT_TS_squared(2:[N_spec/2]) + flip(mean_NUFFT_TS_squared([N_spec/2 + 2]:end)) ]/2 ; 2*mean_NUFFT_TS_squared([N_spec/2 + 1])];
+        end
+        % Fulfill Parseval's theorem approximately (difference from true
+        % variance due to unresolved frequenies and detrending effects):
+        SPEC = 2*NormFactor*SPEC/(FreqFreq(end));
+    elseif strcmp(Method,'plomb') && REAL
+        SPEC = mean_NUFFT_TS_squared(1:end)*NormFactor;
+    else
+        error(['Valid options for optional input ''Method'' include {''nufft'',''plomb''}. Given ''' Method ''''])
     end
-    % Fulfill Parseval's theorem approximately (difference from true
-    % variance due to unresolved frequenies and detrending effects):
-    SPEC = 2*NormFactor*SPEC/(FreqFreq(end));
 else
     if mod(length(mean_NUFFT_TS_squared),2) % odd
         N_spec = length(mean_NUFFT_TS_squared);
