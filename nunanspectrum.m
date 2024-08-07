@@ -228,7 +228,7 @@ for ii = 1:length(TS_reshape)
         NUFFT_TS{ii} = nufft(TS_reshape{ii}, T_reshape{ii}, FreqFreq_)/sqrt([length(T_reshape{ii})]);
         mean_NUFFT_TS_squared = mean_NUFFT_TS_squared + [abs(NUFFT_TS{ii}).^2]/length(TS_reshape);
     elseif strcmp(Method,'plomb') && REAL
-        NUFFT_TS{ii} = plomb(TS_reshape{ii}, T_reshape{ii}, Freq,'psd');
+        NUFFT_TS{ii} = plomb(TS_reshape{ii}, T_reshape{ii}, Freq, 'psd');
         mean_NUFFT_TS_squared = mean_NUFFT_TS_squared + [NUFFT_TS{ii}]/length(TS_reshape);
     elseif strcmp(Method,'plomb') && ~REAL
         error(['The Lomb-Scargle method has only been implemented for real inputs at this time.'])
