@@ -25,7 +25,7 @@
 %                 see the function text, section "Sort out optional inputs".
 % 'PlotSegments'= Advanced option for troubleshooting and validation,
 %                 boolean, allows the plotting of each segment (with and
-%                 without detrending and windpwing) in a single plot, with
+%                 without detrending and windowing) in a single plot, with
 %                 one panel per segment. Default false.
 % 'Method'      = Default 'nufft', this is the function used to get the
 %                 frequency-domain coefficients. The only implemented
@@ -271,6 +271,8 @@ else
     % variance due to unresolved frequenies and detrending effects):
     SPEC = 1*NormFactor*SPEC/(FreqFreq(end));
 end
+% Eliminate the double-counting of energy at the Nyquist frequency:
+SPEC(end) = 0.5*SPEC(end);
 
 %% Error
 
